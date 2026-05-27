@@ -1,0 +1,33 @@
+{
+  "profiles" : [ {
+    "profileDir" : "Default",
+    "name" : "",
+    "lastSearchTime" : "27-05-2026 10:52:41",
+    "lastActivityCheck" : "27-05-2026 10:54:11",
+    "timesSearched" : 5
+  }, {
+    "profileDir" : "Profile 1",
+    "name" : "",
+    "lastSearchTime" : "27-05-2026 10:58:58",
+    "lastActivityCheck" : "27-05-2026 10:54:11",
+    "timesSearched" : 5
+  }, {
+    "profileDir" : "Profile 3",
+    "name" : "",
+    "lastSearchTime" : "27-05-2026 10:58:58",
+    "lastActivityCheck" : "27-05-2026 10:54:11",
+    "timesSearched" : 5
+  }, {
+    "profileDir" : "Profile 4",
+    "name" : "",
+    "lastSearchTime" : "27-05-2026 11:00:47",
+    "lastActivityCheck" : "27-05-2026 10:54:11",
+    "timesSearched" : 5
+  }, {
+    "profileDir" : "Profile 6",
+    "name" : "",
+    "lastSearchTime" : "27-05-2026 11:04:57",
+    "lastActivityCheck" : "27-05-2026 10:54:11",
+    "timesSearched" : 5
+  } ]
+}

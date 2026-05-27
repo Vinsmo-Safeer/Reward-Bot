@@ -29,6 +29,11 @@ public class SearchBot_v2 {
                     "--profile-directory=" + profileDir,
                     "--no-first-run",
                     "--no-default-browser-check",
+
+                    // 👇 ADD THESE TO HIDE AUTOMATION NATIVELY 👇
+                    "--disable-blink-features=AutomationControlled",
+                    "--excludeSwitches=enable-automation",
+
                     url
             ).start();
 
