@@ -1,5 +1,7 @@
 package org.bot;
 
+import java.util.Objects;
+
 public class Profile {
     private String profileDir;
     private String name;
@@ -23,4 +25,21 @@ public class Profile {
 
     public int getTimesSearched() { return timesSearched; }
     public void setTimesSearched(int timesSearched) { this.timesSearched = timesSearched; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile profile = (Profile) o;
+        return timesSearched == profile.timesSearched &&
+                Objects.equals(profileDir, profile.profileDir) &&
+                Objects.equals(name, profile.name) &&
+                Objects.equals(lastSearchTime, profile.lastSearchTime) &&
+                Objects.equals(lastActivityCheck, profile.lastActivityCheck);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(profileDir, name, lastSearchTime, lastActivityCheck, timesSearched);
+    }
 }
