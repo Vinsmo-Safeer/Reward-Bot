@@ -1,0 +1,45 @@
+# General Settings
+os: "windows"  # Options: "windows", "linux"
+maxSearchPerDay: 5
+
+# Paths
+chromePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+userDataDir: "C:\\chrome-debug-Profiles"
+queriesFilePath: "assets/queries.txt"
+databasePath: "assets/database"
+databaseBackupPath: "assets/database_backup.json"
+
+
+
+####################################--IMPORTANT--###################################|
+# To setup the profiles, Make sure you reed the instructions in the How_To_Use file.|
+#####################################################################################
+
+profiles:
+  localFolderList:                    # Folder name of each Profile in chrome
+    - "Default"                       # You can have multiple or just one profile
+    - "Profile 1"
+    - "Profile 3"
+    - "Profile 4"
+    - "Profile 6"
+
+#################################--IMPORTANT--###########################################################|
+# If you want to use proxy, you have to set enableProxy to true and configure the proxy settings below.  |
+# You can use either static proxies or Webshare API keys.                                                |
+# You have to choose one of two options, and make sure to set the other option to false.                 |
+# If you are not using proxy, set enableProxy to false.                                                  |
+##########################################################################################################
+
+# Proxy Settings
+enableProxy: false
+
+proxySettings:                        #If you are not using Proxy, change this to ProxySettings: null
+  useStaticProvider: false
+  staticProxies:
+    - "0.0.0.0:0000"                  # You can have multiple providers or just one
+    - "0.0.0.0:0000"
+    - "0.0.0.0:0000"
+  useWebshareApi: false
+  webshareKeys:
+    - "YOUR_API_KEY_1"                # You can have multiple APIs or just one
+    - "YOUR_API_KEY_2"
