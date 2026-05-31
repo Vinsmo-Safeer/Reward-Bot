@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 
 public class ConsoleUserInterface {
 
-    public static List<Profile> loadProfilesWithPrompt(DatabaseService db, Settings settings) {
+    public static List<Profile> loadProfilesWithPrompt(DatabaseManager db, Settings settings) {
         List<Profile> profiles = new ArrayList<>();
         System.out.println("Database Loaded!");
         System.out.println("If you want to load another Data from database_backup.json Enter [yes/y] before the program starts.");

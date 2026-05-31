@@ -67,7 +67,7 @@ public class Settings {
     }public void setEnableProxy(boolean enableProxy) {
         EnableProxy = enableProxy;
     }
-    public ProxyConfig getProxySettings() {
+    public ProxyConfig getProxyConfig() {
         return proxySettings;
     }public void setProxySettings(ProxyConfig proxySettings) {
         this.proxySettings = proxySettings;

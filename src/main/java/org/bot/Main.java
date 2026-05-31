@@ -22,7 +22,7 @@ public class Main {
     static volatile boolean running = true;
     static int numberOfRuns = 0;
 
-    static DatabaseService db;
+    static DatabaseManager db;
 
     public static void main(String[] args) {
         loadSettings();
@@ -121,7 +121,7 @@ public class Main {
 
     public static void loadDatabase() {
         // Instantiate the object cleanly with its settings dependency
-        db = new DatabaseService(settings);
+        db = new DatabaseManager(settings);
         db.initializeDatabase();
 
         // Pull initial layout datasets

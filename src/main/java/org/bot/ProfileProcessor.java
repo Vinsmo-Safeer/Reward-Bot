@@ -8,22 +8,27 @@ import java.util.List;
 import java.util.Objects;
 
 public class ProfileProcessor {
+
+    Settings settings;
+    ProxyManger proxyManger;
+
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-    private static final int MAX_SEARCH_PER_DAY = 5;
     private static final int ACTIVITY_THRESHOLD_MINS = 180;
 
-    private final DatabaseService db;
+    private final DatabaseManager db;
     private final SearchBotService searchBotService;
     private final WebScraperService webScraperService;
 
-    public ProfileProcessor(DatabaseService db, Settings settings) {
+    public ProfileProcessor(DatabaseManager db, Settings settings) {
         this.db = db;
+        this.settings = settings;
         // Inject dependencies once on startup!
-        this.searchBotService = new SearchBotService(settings);
-        this.webScraperService = new WebScraperService(settings);
+        this.searchBotService = new SearchBotService(settings, db);
+        this.webScraperService = new WebScraperService(settings, db);
     }
 
-    public void processAll(List<Profile> profileList) {
+    public void processAll(List<Profile> profileList ) {
+
         String formattedNow = LocalDateTime.now().format(TIME_FORMATTER);
 
         for (Profile profile : profileList) {
@@ -47,17 +52,28 @@ public class ProfileProcessor {
         resetSearchCountIfNewDay(profile, formattedNow);
 
         // 1. Clean Object-Oriented call to Search Service
-        if (profile.getTimesSearched() < MAX_SEARCH_PER_DAY) {
-            searchBotService.executeSearch(profile.getProfileDir());
-
-            profile.setTimesSearched(profile.getTimesSearched() + 1);
-            profile.setLastSearchTime(formattedNow);
+        if (profile.getTimesSearched() < settings.getMaxSearchPerDay()) {
+            String searchResult = searchBotService.executeSearch(profile);
+            if (searchResult.contains("0")) { // 0 means search completed successfully
+                profile.setTimesSearched(profile.getTimesSearched() + 1);
+                profile.setLastSearchTime(formattedNow);
+                if (settings.isEnableProxy()) {
+                    profile.setLastUsedProxy(searchResult.split(" ")[1].split("_")[0]);
+                    profile.setProxyCountry(searchResult.split(" ")[1].split("_")[1]);
+                }
+            }
         }
 
         // 2. Clean Object-Oriented call to Scraper Service
         if (Main.running && isActivityCheckNeeded(profile.getLastActivityCheck(), formattedNow)) {
-            webScraperService.scrapeDailyActivities(profile.getProfileDir());
-            profile.setLastActivityCheck(formattedNow);
+            String activityCheckResult = webScraperService.scrapeDailyActivities(profile);
+            if (activityCheckResult.contains("0")) { // 0 means activity check completed successfully
+                profile.setLastActivityCheck(formattedNow);
+                if (settings.isEnableProxy()) {
+                    profile.setLastUsedProxy(activityCheckResult.split(" ")[1].split("_")[0]);
+                    profile.setProxyCountry(activityCheckResult.split(" ")[1].split("_")[1]);
+                }
+            }
         } else {
             System.out.println("Skipping activity check for " + profile.getName() + " as it was recently checked.");
         }

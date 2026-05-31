@@ -8,6 +8,8 @@ public class Profile {
     private String lastSearchTime;
     private String lastActivityCheck;
     private int timesSearched;
+    private String lastUsedProxy;
+    private String proxyCountry = "";
 
     // Add Getters and Setters here
     // Example:
@@ -26,6 +28,20 @@ public class Profile {
     public int getTimesSearched() { return timesSearched; }
     public void setTimesSearched(int timesSearched) { this.timesSearched = timesSearched; }
 
+    public String getLastUsedProxy() {
+        return lastUsedProxy;
+    }
+    public void setLastUsedProxy(String lastUsedProxy) {
+        this.lastUsedProxy = lastUsedProxy;
+    }
+
+    public String getProxyCountry() {
+        return proxyCountry;
+    }
+    public void setProxyCountry(String proxyCountry) {
+        this.proxyCountry = proxyCountry;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -35,7 +51,9 @@ public class Profile {
                 Objects.equals(profileDir, profile.profileDir) &&
                 Objects.equals(name, profile.name) &&
                 Objects.equals(lastSearchTime, profile.lastSearchTime) &&
-                Objects.equals(lastActivityCheck, profile.lastActivityCheck);
+                Objects.equals(lastActivityCheck, profile.lastActivityCheck) &&
+                Objects.equals(lastUsedProxy, profile.lastUsedProxy) &&   // Added
+                Objects.equals(proxyCountry, profile.proxyCountry);
     }
 
     @Override

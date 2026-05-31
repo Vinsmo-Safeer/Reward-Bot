@@ -14,25 +14,29 @@ import java.util.Random;
 
 public class WebScraperService {
 
+    DatabaseManager db;
+    ProxyManger proxyManger;
+    private final Settings settings;
+
     private static final String TARGET_URL = "https://rewards.bing.com/earn";
     private static final String DEBUG_URL = "http://127.0.0.1:9222";
 
-    private final Settings settings;
     private final Random random = new Random();
 
-    public WebScraperService(Settings settings) {
+    public WebScraperService(Settings settings, DatabaseManager db) {
         this.settings = settings;
+        this.db = db;
     }
 
     /**
      * Connects to Chrome via CDP protocols and scraps daily activities.
-     * @param profileDir The target browser profile directory name.
+     * @param profile The target browser profile configuration object.
      */
-    public void scrapeDailyActivities(String profileDir) {
+    public String scrapeDailyActivities(Profile profile) {
         killAllChromeProcesses();
-        disableProtocolHandlers(profileDir);
+        disableProtocolHandlers(profile.getProfileDir());
 
-        launchChromeNatively(profileDir);
+        String launchChromeResult = launchChromeNatively(profile);
 
         System.out.println("[DEBUG] Attaching Playwright via CDP Connect...");
         try (Playwright playwright = Playwright.create()) {
@@ -45,38 +49,86 @@ public class WebScraperService {
         } finally {
             killAllChromeProcesses();
         }
+
+        return launchChromeResult;
     }
 
-    private void launchChromeNatively(String profileName) {
+    private String launchChromeNatively(Profile profile) {
         System.out.println("[DEBUG] Launching Chrome with remote debugging via ProcessBuilder...");
-        try {
-            List<String> command = new ArrayList<>(List.of(
-                    settings.getChromePath(),
-                    "--remote-debugging-port=9222",
-                    "--remote-debugging-address=127.0.0.1",
-                    "--user-data-dir=" + settings.getUserDataDir(),
-                    "--profile-directory=" + profileName,
-                    "--no-first-run",
-                    "--no-default-browser-check",
-                    "--start-maximized",
-                    "--hide-crash-restore-bubble",
-                    "--disable-features=Translate",
-                    "--disable-blink-features=AutomationControlled",
-                    "--excludeSwitches=enable-automation"
-            ));
 
-            ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectErrorStream(true);
-            pb.start();
+        String proxyInfo = "";
+        try {
+
+            if (settings.isEnableProxy()) {
+                proxyManger = new ProxyManger(settings);
+                proxyManger.loadingProxies();
+                Proxy proxy = proxyManger.getAppropriateProxy(profile.getProfileDir(), db, profile);
+
+                if (proxy == null) {
+                    System.out.println("No proxy available for profile '" + profile.getProfileDir() + "', skipping activity check.");
+                    return null;
+                }
+
+                List<String> command = new ArrayList<>(List.of(
+                        settings.getChromePath(),
+                        "--remote-debugging-port=9222",
+                        "--remote-debugging-address=127.0.0.1",
+                        "--user-data-dir=" + settings.getUserDataDir(),
+                        "--profile-directory=" + profile.getProfileDir(),
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                        "--start-maximized",
+                        "--hide-crash-restore-bubble",
+                        "--disable-features=Translate",
+                        "--disable-blink-features=AutomationControlled",
+                        "--excludeSwitches=enable-automation",
+
+                        "--proxy-server=http://" + proxy.getProxyAddress() + ":" + proxy.getPort()
+                ));
+
+                ProcessBuilder pb = new ProcessBuilder(command);
+                pb.redirectErrorStream(true);
+                pb.start();
+
+                    proxyInfo = proxy.getProxyAddress() + "_" + proxy.getCountryCode();
+
+
+            }else {
+
+                List<String> command = new ArrayList<>(List.of(
+                        settings.getChromePath(),
+                        "--remote-debugging-port=9222",
+                        "--remote-debugging-address=127.0.0.1",
+                        "--user-data-dir=" + settings.getUserDataDir(),
+                        "--profile-directory=" + profile.getProfileDir(),
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                        "--start-maximized",
+                        "--hide-crash-restore-bubble",
+                        "--disable-features=Translate",
+                        "--disable-blink-features=AutomationControlled",
+                        "--excludeSwitches=enable-automation"
+                ));
+
+                ProcessBuilder pb = new ProcessBuilder(command);
+                pb.redirectErrorStream(true);
+                pb.start();
+            }
+
+
+
+
 
             if (!waitForDebugPort()) {
                 System.out.println("❌ Failed to detect remote debugging port after launch.");
-                return;
+                return null;
             }
             System.out.println("✅ Remote debugging port is open and operational.");
         } catch (Exception e) {
             System.err.println("Failed to launch native Chrome: " + e.getMessage());
         }
+
+        return "0 " + proxyInfo;
     }
 
     private boolean waitForDebugPort() throws InterruptedException {
